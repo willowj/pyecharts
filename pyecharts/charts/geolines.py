@@ -1,56 +1,27 @@
 # coding=utf-8
+from __future__ import unicode_literals
 
-from pyecharts.chart import Chart
-from pyecharts.datasets.coordinates import get_coordinate
+from pyecharts.charts.geo import Geo
 from pyecharts.constants import SYMBOL
 
 
-class GeoLines(Chart):
+class GeoLines(Geo):
     """
     <<< 地理坐标系线图 >>>
 
     用于带有起点和终点信息的线数据的绘制，主要用于地图上的航线，路线的可视化。
     """
 
-    def __init__(self, title="", subtitle="", **kwargs):
-        super(GeoLines, self).__init__(title, subtitle, **kwargs)
+    def __init__(self, *args, **kwargs):
+        super(GeoLines, self).__init__(*args, **kwargs)
         self._zlevel = 1
-        self._coordinates = {}
 
-    def add_coordinate(self, name, longitude, latitude):
-        """
-        Add a geo coordinate for a position.
-        :param name: The name of a position
-        :param longitude: The longitude of coordinate.
-        :param latitude: The latitude of coordinate.
-        :return:
-        """
-        self._coordinates.update({name: [longitude, latitude]})
-
-    def get_coordinate(self, name, raise_exception=False):
-        """
-        Return coordinate for the city name.
-        :param name: City name or any custom name string.
-        :param raise_exception: Whether to raise exception if not exist.
-        :return: A list like [longitude, latitude] or None
-        """
-        if name in self._coordinates:
-            return self._coordinates[name]
-
-        coordinate = get_coordinate(name)
-        if coordinate is None and raise_exception:
-            raise ValueError("No coordinate is specified for {}".format(name))
-
-        return coordinate
-
-    def add(self, *args, **kwargs):
-        self.__add(*args, **kwargs)
-
-    def __add(
+    def add(
         self,
         name,
         data,
         maptype="china",
+        coordinate_region="中国",
         symbol=None,
         symbol_size=12,
         border_color="#111",
@@ -71,17 +42,16 @@ class GeoLines(Chart):
         :param name:
             系列名称，用于 tooltip 的显示，legend 的图例筛选。
         :param data:
-            数据项，数据中，每一行是一个『数据项』，每一列属于一个『维度』。每一行包含两个数据，
-            如 ["广州", "北京"]，则指定从广州到北京。
+            数据项，数据中，每一行是一个『数据项』，每一列属于一个『维度』。每一行包含两个或
+            三个数据，如 ["广州", "北京"] 或 ["广州", "北京"，100]，则指定从广州到北京。第
+            三个值用于表示该 line 的数值，该值可省略。
         :param maptype:
-            地图类型。 支持 china、world、安徽、澳门、北京、重庆、福建、福建、甘肃、
-            广东，广西、广州、海南、河北、黑龙江、河南、湖北、湖南、江苏、江西、吉林、
-            辽宁、内蒙古、宁夏、青海、山东、上海、陕西、山西、四川、台湾、天津、香港、
-            新疆、西藏、云南、浙江，以及 [363个二线城市](https://github.com/chfw/
-            echarts-china-cities-js#featuring-citiesor-for-single-download]地图。
-            提醒：
-                在画市级地图的时候，城市名字后面的‘市’要省去了，比如，石家庄市的
-                ‘市’不要提，即‘石家庄’就可以了。
+            地图类型。 从 v0.3.2+ 起，地图已经变为扩展包，支持全国省份，全国城市，全国区县，
+            全球国家等地图，具体请参考 [地图自定义篇](zh-cn/customize_map)
+        :param coordinate_region:
+            城市坐标所属国家。从 v0.5.7 引入，针对国际城市的地理位置的查找。默认为 `中国`。
+            具体的国家/地区映射表参照 datasets/countries_regions_db.json。更多地理坐标
+            信息可以参考 [数据集篇](/zh-cn/datasets)
         :param symbol:
             线两端的标记类型，可以是一个数组分别指定两端，也可以是单个统一指定。
         :param symbol_size:
@@ -118,17 +88,24 @@ class GeoLines(Chart):
         chart = self._get_all_options(**kwargs)
         self._zlevel += 1
         if geo_cities_coords:
-            for name, coord in geo_cities_coords.items():
-                self.add_coordinate(name, coord[0], coord[1])
+            for city_name, city_coord in geo_cities_coords.items():
+                self.add_coordinate(city_name, city_coord[0], city_coord[1])
 
         if geo_effect_symbol == "plane":
             geo_effect_symbol = SYMBOL["plane"]
 
         _data_lines, _data_scatter = [], []
-        for d in data:
-            _from_name, _to_name = d
+        for element in data:
+            assert len(element) >= 2
+            _line_value = None
+
+            if len(element) == 2:
+                _from_name, _to_name = element
+            else:
+                _from_name, _to_name, _line_value = element
+
             _from_coordinate = self.get_coordinate(
-                _from_name, raise_exception=True
+                _from_name, coordinate_region, raise_exception=True
             )
             _to_coordinate = self.get_coordinate(
                 _to_name, raise_exception=True
@@ -137,6 +114,7 @@ class GeoLines(Chart):
                 {
                     "fromName": _from_name,
                     "toName": _to_name,
+                    "value": _line_value,
                     "coords": [_from_coordinate, _to_coordinate],
                 }
             )
@@ -198,8 +176,10 @@ class GeoLines(Chart):
                 "symbolSize": 10,
                 "data": _data_scatter,
                 "label": chart["label"],
+                "tooltip": {"formatter": "{b}"},
             }
         )
 
         self._add_chinese_map(maptype)
         self._config_components(**kwargs)
+        return self

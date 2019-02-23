@@ -1,5 +1,5 @@
 {
-    "backgroundColor": null, 
+    "animation": true,
     "color": [
         "#c23531", 
         "#2f4554", 
@@ -37,7 +37,6 @@
             "selectedMode": "multiple", 
             "show": true, 
             "textStyle": {
-                "color": null, 
                 "fontSize": 12
             }, 
             "top": "top"
@@ -248,32 +247,31 @@
     "title": [
         {
             "left": "auto", 
-            "subtext": "", 
             "subtextStyle": {
-                "color": null, 
                 "fontSize": 12
             }, 
             "text": "K \u7ebf\u56fe-\u9ed8\u8ba4\u793a\u4f8b", 
             "textStyle": {
-                "color": null, 
                 "fontSize": 18
             }, 
             "top": "auto"
         }
     ], 
-    "toolbox": {
+     "toolbox": {
         "feature": {
             "dataView": {
-                "show": true
-            }, 
+                "show": true,
+                "title": "data view"
+            },
             "restore": {
-                "show": true
-            }, 
+                "show": true,
+                "title": "restore"
+            },
             "saveAsImage": {
-                "show": true, 
-                "title": "\u4e0b\u8f7d\u56fe\u7247"
+                "show": true,
+                "title": "save as image"
             }
-        }, 
+        },
         "left": "95%", 
         "orient": "vertical", 
         "show": true, 
@@ -286,26 +284,28 @@
         "backgroundColor": "rgba(50,50,50,0.7)", 
         "borderColor": "#333", 
         "borderWidth": 0, 
-        "formatter": null, 
+        "formatter": "-=>kline_tooltip_formatter<=-", 
         "textStyle": {
-            "color": null, 
             "fontSize": 14
         }, 
-        "trigger": "item", 
+        "trigger": "axis", 
         "triggerOn": "mousemove|click"
     }, 
     "xAxis": [
         {
             "axisLabel": {
-                "formatter": null, 
                 "interval": "auto", 
                 "margin": 8, 
                 "rotate": 0, 
                 "textStyle": {
-                    "color": null, 
                     "fontSize": 12
                 }
-            }, 
+            },
+             "axisLine": {
+                "lineStyle": {
+                    "width": 1
+                }
+            },
             "axisTick": {
                 "alignWithLabel": false
             }, 
@@ -344,15 +344,11 @@
                 "2017/7/31"
             ], 
             "inverse": false, 
-            "max": null, 
-            "min": null, 
-            "name": "", 
             "nameGap": 25, 
             "nameLocation": "middle", 
             "nameTextStyle": {
                 "fontSize": 14
             }, 
-            "position": null, 
             "scale": true, 
             "show": true, 
             "splitLine": {
@@ -369,24 +365,24 @@
                 "margin": 8, 
                 "rotate": 0, 
                 "textStyle": {
-                    "color": null, 
                     "fontSize": 12
                 }
-            }, 
+            },
+             "axisLine": {
+                "lineStyle": {
+                    "width": 1
+                }
+            },
             "axisTick": {
                 "alignWithLabel": false
             }, 
             "boundaryGap": true, 
             "inverse": false, 
-            "max": null, 
-            "min": null, 
-            "name": "", 
             "nameGap": 25, 
             "nameLocation": "middle", 
             "nameTextStyle": {
                 "fontSize": 14
             }, 
-            "position": null, 
             "scale": true, 
             "show": true, 
             "splitArea": {

@@ -1,7 +1,13 @@
 # coding=utf-8
+from __future__ import unicode_literals
+
+import codecs
+import json
 
 from pyecharts.chart import Chart
 from pyecharts.datasets.coordinates import get_coordinate
+
+DEFAULT_GEO_TOOLTIP_FORMATTER = "{b}: {c}"
 
 
 class Geo(Chart):
@@ -18,16 +24,31 @@ class Geo(Chart):
     def add_coordinate(self, name, longitude, latitude):
         """
         Add a geo coordinate for a position.
+
         :param name: The name of a position
         :param longitude: The longitude of coordinate.
         :param latitude: The latitude of coordinate.
-        :return:
         """
         self._coordinates.update({name: [longitude, latitude]})
 
-    def get_coordinate(self, name, raise_exception=False):
+    def add_coordinate_json(self, json_file):
+        """
+        add a geo coordinate json file for position
+
+        :param json_file: geo coords json file
+        """
+        try:
+            with codecs.open(json_file, "r", "utf-8") as f:
+                json_reader = json.load(f)
+                for k, v in json_reader.items():
+                    self.add_coordinate(k, v[0], v[1])
+        except Exception:
+            raise
+
+    def get_coordinate(self, name, region="中国", raise_exception=False):
         """
         Return coordinate for the city name.
+
         :param name: City name or any custom name string.
         :param raise_exception: Whether to raise exception if not exist.
         :return: A list like [longitude, latitude] or None
@@ -35,7 +56,7 @@ class Geo(Chart):
         if name in self._coordinates:
             return self._coordinates[name]
 
-        coordinate = get_coordinate(name)
+        coordinate = get_coordinate(name, region=region)
         if coordinate is None and raise_exception:
             raise ValueError("No coordinate is specified for {}".format(name))
 
@@ -43,6 +64,7 @@ class Geo(Chart):
 
     def add(self, *args, **kwargs):
         self.__add(*args, **kwargs)
+        return self
 
     def __add(
         self,
@@ -51,6 +73,7 @@ class Geo(Chart):
         value,
         type="scatter",
         maptype="china",
+        coordinate_region="中国",
         symbol_size=12,
         border_color="#111",
         geo_normal_color="#323c48",
@@ -70,14 +93,12 @@ class Geo(Chart):
         :param type:
             图例类型，有'scatter', 'effectscatter', 'heatmap'可选。
         :param maptype:
-            地图类型。 支持 china、world、安徽、澳门、北京、重庆、福建、福建、甘肃、
-            广东，广西、广州、海南、河北、黑龙江、河南、湖北、湖南、江苏、江西、吉林、
-            辽宁、内蒙古、宁夏、青海、山东、上海、陕西、山西、四川、台湾、天津、香港、
-            新疆、西藏、云南、浙江，以及 [363个二线城市](https://github.com/chfw/
-            echarts-china-cities-js#featuring-citiesor-for-single-download]地图。
-            提醒：
-                在画市级地图的时候，城市名字后面的‘市’要省去了，比如，石家庄市的
-                ‘市’不要提，即‘石家庄’就可以了。
+            地图类型。 从 v0.3.2+ 起，地图已经变为扩展包，支持全国省份，全国城市，全国区县，
+            全球国家等地图，具体请参考 [地图自定义篇](zh-cn/customize_map)
+        :param coordinate_region:
+            城市坐标所属国家。从 v0.5.7 引入，针对国际城市的地理位置的查找。默认为 `中国`。
+            具体的国家/地区映射表参照 datasets/countries_regions_db.json。更多地理坐标
+            信息可以参考 [数据集篇](/zh-cn/datasets)
         :param symbol_size:
             标记图形大小。
         :param border_color:
@@ -96,15 +117,19 @@ class Geo(Chart):
         """
         assert len(attr) == len(value)
         kwargs.update(type="geo")
+        if "tooltip_formatter" not in kwargs:
+            kwargs["tooltip_formatter"] = DEFAULT_GEO_TOOLTIP_FORMATTER
         chart = self._get_all_options(**kwargs)
 
         if geo_cities_coords:
-            for name, coord in geo_cities_coords.items():
-                self.add_coordinate(name, coord[0], coord[1])
+            for city_name, city_coord in geo_cities_coords.items():
+                self.add_coordinate(city_name, city_coord[0], city_coord[1])
 
         _data = []
         for _name, _value in zip(attr, value):
-            _coordinate = self.get_coordinate(_name, raise_exception=True)
+            _coordinate = self.get_coordinate(
+                _name, coordinate_region, raise_exception=True
+            )
             _data_value = [_coordinate[0], _coordinate[1], _value]
             _data.append({"name": _name, "value": _data_value})
         self._option.update(

@@ -2,7 +2,6 @@ from pyecharts.echarts.json_serializable import JsonSerializable
 
 
 class Label(JsonSerializable):
-
     def __init__(
         self,
         visibility=False,
@@ -12,7 +11,7 @@ class Label(JsonSerializable):
         formatter=None,
         chart_type=None,
     ):
-        self.config = {
+        self._config = {
             "show": visibility,
             "position": position,
             "textStyle": {"color": text_color, "fontSize": text_size},
@@ -20,10 +19,10 @@ class Label(JsonSerializable):
 
         if chart_type != "graph":
             if formatter is None:
-                if type == "pie":
+                if chart_type == "pie":
                     formatter = "{b}: {d}%"
         if formatter:
-            self.config["formatter"] = formatter
+            self._config["formatter"] = formatter
 
 
 class EmphasisLabel(Label):
@@ -31,7 +30,6 @@ class EmphasisLabel(Label):
 
 
 class NormalLabel(Label):
-
     def __init__(self, position=None, chart_type=None, **kwargs):
         if position is None:
             position = "outside" if chart_type in ["pie", "graph"] else "top"

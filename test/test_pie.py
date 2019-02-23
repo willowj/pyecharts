@@ -2,15 +2,17 @@
 # coding=utf-8
 from __future__ import unicode_literals
 
-from pyecharts import Pie, Style
+import random
 from test.constants import CLOTHES
 
+from pyecharts import Pie, Style
 
-def test_pie_default():
+
+def test_pie_default_formatter():
     v1 = [11, 12, 13, 10, 10, 10]
     pie = Pie("饼图示例")
     pie.add("", CLOTHES, v1, is_label_show=True)
-    pie.render()
+    assert '"formatter": "{b}: {d}%"' in pie._repr_html_()
 
 
 def test_pie_legend():
@@ -77,8 +79,6 @@ def test_pie_type_radius():
 
 
 def test_pie_multiple():
-    import random
-
     attr = ["A", "B", "C", "D", "E", "F"]
     pie = Pie("饼图示例", width=1000, height=600)
     pie.add(

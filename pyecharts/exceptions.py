@@ -18,5 +18,5 @@ class ExtensionMissing(Exception):
     pass
 
 
-class InvalidTheme(Exception):
+class RegionNotFound(Exception):
     pass

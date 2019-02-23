@@ -53,7 +53,7 @@ $ pip install pyecharts-javascripthon
 
 ### 基本使用
 
-pyecharts 已经封装了底层相关逻辑，对使用者是透明的。因此你可以像之前一样的使用。将回函函数对象通过 `add` 方法赋值到 echarts 配置字典中，这里的回调函数需满足以下条件之一：
+pyecharts 已经封装了底层相关逻辑，对使用者是透明的。因此你可以像之前一样的使用。将回调函数对象通过 `add` 方法赋值到 echarts 配置字典中，这里的回调函数需满足以下条件之一：
 
 - 使用 `def` 定义的命名函数
 
@@ -135,6 +135,47 @@ def test_geo_shantou_city():
 就可以看到下面的效果了。
 
 ![](https://user-images.githubusercontent.com/19553554/39248244-1be6da4a-48ce-11e8-931f-059879c5dcf4.png)
+
+### Label 示例
+
+使用回调函数强制设置浮点数位数
+
+```python
+from pyecharts_javascripthon.dom import window
+from pyecharts import Bar, Grid
+
+
+def custom_formatter(params):
+    return window.parseFloat(params.value).toFixed(2)
+
+
+attr = ["aa", "bb", "Diabetes Mellitus Requiring Medication", "d", "e", "fff"]
+v1 = [5.12, 20.85, 36.69, 10.10, 75.20, 90.36]
+v2 = [10.00, 25.45, 8.23, 60.00, 20.50, 80.00]
+bar = Bar("x 轴和 y 轴交换")
+bar.add(
+    "商家A",
+    attr,
+    v1,
+    is_label_show=True,
+    label_pos="right",
+    label_formatter=custom_formatter,
+)
+bar.add(
+    "商家B",
+    attr,
+    v2,
+    is_convert=True,
+    is_label_show=True,
+    label_pos="right",
+    label_formatter=custom_formatter,
+)
+grid = Grid()
+grid.add(bar, grid_left="40%")
+grid.render()
+```
+![](https://user-images.githubusercontent.com/19553554/44003191-5c5e7764-9e81-11e8-98f1-757a208ec337.png)
+
 
 ## 使用 JavaScript 事件处理函数
 
@@ -244,4 +285,18 @@ def label_formatter(params):
 bar2 = Bar("Bar chart", "precipitation and evaporation one year")
 bar2.add("precipitation", attr, v1, is_label_show=True, label_formatter=label_formatter)
 bar2.render()
+```
+
+## 编辑 _option
+
+如果 pyecharts 的自带 options 不能满足要求的话，开发人员是可以自己插入自己的配置选项。唯一的问题是，pyecharts 不能把某选项设置为空 (null)。
+从 0.5.10 起，这个问题得到了解决。
+
+```python
+from pyecharts import NULL, Kline
+
+kline = Kline("K 线图-默认示例")
+kline.add("日K", DATE, data)
+kline._option['series'][0]['itemStyle']['normal']['borderColor'] = NULL
+kline.render()
 ```

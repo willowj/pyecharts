@@ -1,17 +1,19 @@
 # coding=utf-8
+import copy
 import os
 import uuid
 import warnings
+from tempfile import mkstemp
 
 from jinja2 import Markup
-
-import pyecharts.utils as utils
-import pyecharts.engine as engine
-import pyecharts.constants as constants
-import pyecharts.exceptions as exceptions
-from pyecharts.conf import CURRENT_CONFIG
 from pyecharts_javascripthon.api import TRANSLATOR
-from pyecharts.echarts.option import get_all_options
+
+import pyecharts.constants as constants
+import pyecharts.engine as engine
+import pyecharts.exceptions as exceptions
+import pyecharts.utils as utils
+from pyecharts.conf import CURRENT_CONFIG
+from pyecharts.echarts.option import get_other_options
 
 
 class Base(object):
@@ -25,6 +27,8 @@ class Base(object):
         height=400,
         renderer=constants.CANVAS_RENDERER,
         page_title=constants.PAGE_TITLE,
+        extra_html_text_label=None,
+        is_animation=True,
     ):
         """
 
@@ -37,6 +41,11 @@ class Base(object):
             3D 图仅能使用 'canvas'。
         :param page_title:
             指定生成的 html 文件中 <title> 标签的值。默认为 'Echarts'
+        :param extra_html_text_label:
+            额外的 HTML 文本标签，(<p> 标签)。类型为 list，list[0] 为文本内容，
+            list[1] 为字体风格样式（选填）。如 ["this is a p label", "color:red"]
+        :param is_animation:
+            是否开启动画，默认为 True。V0.5.9+
         """
         self._option = {}
         self._js_dependencies = set()
@@ -48,6 +57,8 @@ class Base(object):
         self.event_handlers = {}
         self.theme = None
         self.use_theme(CURRENT_CONFIG.theme)
+        self.extra_html_text_label = extra_html_text_label
+        self.is_animation = is_animation
 
     @property
     def chart_id(self):
@@ -59,7 +70,7 @@ class Base(object):
 
     @property
     def options(self):
-        return self._option
+        return self.get_options()
 
     @property
     def js_dependencies(self):
@@ -69,18 +80,21 @@ class Base(object):
     def page_title(self):
         return self._page_title
 
-    def use_theme(self, theme_name):
-        if theme_name in constants.ALL_THEMES:
-            self.theme = theme_name
-            if theme_name in constants.EXTERNAL_THEMES:
-                self._js_dependencies.add(self.theme)
+    def get_options(self, remove_none=True):
+        if remove_none:
+            return utils.remove_key_with_none_value(self._option)
         else:
-            raise exceptions.InvalidTheme(
-                "{0} is not found".format(theme_name)
-            )
+            return copy.deepcopy(self._option)
+
+    def use_theme(self, theme_name):
+        self.theme = theme_name
+        if theme_name not in constants.BUILTIN_THEMES:
+            self._js_dependencies.add(self.theme)
+        return self
 
     def on(self, event_name, handler):
         self.event_handlers[event_name] = handler
+        return self
 
     def print_echarts_options(self):
         """
@@ -176,7 +190,7 @@ class Base(object):
         )
 
     def _get_all_options(self, **kwargs):
-        return get_all_options(**kwargs)
+        return get_other_options(**kwargs)
 
     def _repr_html_(self):
         """
@@ -186,18 +200,25 @@ class Base(object):
         chart.js_dependencies => require_config => config_items, libraries
         :return A unicode string.
         """
-        if CURRENT_CONFIG.jupyter_presentation != constants.DEFAULT_HTML:
-            return None
+        if CURRENT_CONFIG.jupyter_presentation == constants.DEFAULT_HTML:
+            require_config = CURRENT_CONFIG.produce_require_configuration(
+                self.js_dependencies
+            )
+            config_items = require_config["config_items"]
+            libraries = require_config["libraries"]
+            env = engine.create_default_environment(constants.DEFAULT_HTML)
+            return env.render_chart_to_notebook(
+                charts=(self,), config_items=config_items, libraries=libraries
+            )
 
-        require_config = CURRENT_CONFIG.produce_require_configuration(
-            self.js_dependencies
-        )
-        config_items = require_config["config_items"]
-        libraries = require_config["libraries"]
-        env = engine.create_default_environment(constants.DEFAULT_HTML)
-        return env.render_chart_to_notebook(
-            charts=(self,), config_items=config_items, libraries=libraries
-        )
+        elif CURRENT_CONFIG.jupyter_presentation == constants.NTERACT:
+            env = engine.create_default_environment(constants.DEFAULT_HTML)
+            return env.render_chart_to_notebook(
+                chart=self, template_name="nteract.html"
+            )
+
+        else:
+            return None
 
     def _repr_svg_(self):
         content = self._render_as_image(constants.SVG)
@@ -235,12 +256,11 @@ class Base(object):
             )
 
         env = engine.create_default_environment(file_type)
-        outfile = "tmp." + file_type
+        tmp_file_handle, tmp_file_path = mkstemp(suffix="." + file_type)
         content = env.render_chart_to_file(
-            chart=self, path=outfile, verbose=False
+            chart=self, path=tmp_file_path, verbose=False
         )
-        if content:
-            os.unlink(outfile)
+        os.close(tmp_file_handle)
         return content
 
     def _add_chinese_map(self, map_name_in_chinese):

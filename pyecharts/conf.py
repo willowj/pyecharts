@@ -2,12 +2,14 @@
 from __future__ import unicode_literals
 
 from contextlib import contextmanager
-from pyecharts.js_extensions import EXTENSION_MANAGER
+
 import pyecharts.constants as constants
+from pyecharts.js_extensions import EXTENSION_MANAGER
+
+ONLINE_ASSETS_JS = "https://pyecharts.github.io/assets/js/"
 
 
 class PyEchartsConfig(object):
-
     def __init__(
         self, echarts_template_dir=".", jshost=None, force_js_embed=False
     ):
@@ -25,7 +27,8 @@ class PyEchartsConfig(object):
         """
         if self.force_js_embed:
             return True
-
+        if self.hosted_on_github:
+            return False
         else:
             return self.jshost is None
 
@@ -68,6 +71,10 @@ class PyEchartsConfig(object):
         return contents
 
     def generate_js_link(self, js_names):
+        # self.jshost 为 None 时应该使用远程 js
+        # "https://pyecharts.github.io/assets/js"
+        if not self.jshost:
+            self.jshost = ONLINE_ASSETS_JS
         links = []
         for name in js_names:
             for extension in EXTENSION_MANAGER.get_all_extensions():
@@ -124,7 +131,6 @@ def configure(
     force_js_embed=None,
     output_image=None,
     global_theme=None,
-    **kwargs
 ):
     """
     Config all items for pyecharts when use chart.render() or page.render().
@@ -137,7 +143,6 @@ def configure(
                          Values such as 'svg', 'jpeg', 'png' changes
                          chart presentation in jupyter notebook to those image
                          formats, instead of 'html' format.
-    :param kwargs:
     """
     if jshost:
         CURRENT_CONFIG.jshost = jshost
@@ -149,7 +154,7 @@ def configure(
         CURRENT_CONFIG.force_js_embed = force_js_embed
     if output_image in constants.JUPYTER_PRESENTATIONS:
         CURRENT_CONFIG.jupyter_presentation = output_image
-    if global_theme in constants.ALL_THEMES:
+    if global_theme is not None:
         CURRENT_CONFIG.theme = global_theme
 
 
@@ -163,6 +168,17 @@ def online(host=None):
         configure(hosted_on_github=True)
     else:
         configure(jshost=host)
+
+
+def enable_nteract(host=None):
+    # self.jshost 为 None 时应该使用远程 js
+    # "https://pyecharts.github.io/assets/js"
+    _host = ONLINE_ASSETS_JS
+    if host:
+        _host = host
+    configure(
+        output_image=constants.NTERACT, jshost=remove_trailing_slashes(_host)
+    )
 
 
 @contextmanager

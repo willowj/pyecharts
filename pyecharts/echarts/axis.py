@@ -4,7 +4,6 @@ from pyecharts.echarts.json_serializable import JsonSerializable
 
 
 class AxisLabel(JsonSerializable):
-
     def __init__(
         self,
         interval=None,
@@ -14,7 +13,7 @@ class AxisLabel(JsonSerializable):
         text_color=None,
         formatter=None,
     ):
-        self.config = {
+        self._config = {
             "interval": interval,
             "formatter": formatter,
             "rotate": rotate,
@@ -24,13 +23,11 @@ class AxisLabel(JsonSerializable):
 
 
 class XAxisLabel(AxisLabel):
-
     def __init__(self, **kwargs):
         super(XAxisLabel, self).__init__(**kwargs)
 
 
 class YAxisLabel(AxisLabel):
-
     def __init__(self, formatter=None, **kwargs):
         if not isinstance(formatter, types.FunctionType):
             formatter = "{value} " + formatter
@@ -38,7 +35,6 @@ class YAxisLabel(AxisLabel):
 
 
 class Axis(JsonSerializable):
-
     def __init__(
         self,
         name=None,
@@ -53,9 +49,11 @@ class Axis(JsonSerializable):
         split_line=True,
         value_range=None,
         axis_type="value",
+        axis_line_color=None,
+        axis_line_width=1,
         chart_type=None,
     ):
-        self.config = {
+        self._config = {
             "name": name,
             "show": visibility,
             "nameLocation": name_location,
@@ -69,14 +67,16 @@ class Axis(JsonSerializable):
             "max": value_range[1],
             "type": axis_type,
             "splitLine": {"show": split_line},
+            "axisLine": {
+                "lineStyle": {
+                    "color": axis_line_color,
+                    "width": axis_line_width,
+                }
+            },
         }
-
-    def set_split_line_visibility(self, flag):
-        self.config["splitLine"]["show"] = flag
 
 
 class XAxis(Axis):
-
     def __init__(
         self, axis_type=None, chart_type=None, split_line=False, **kwargs
     ):
@@ -92,7 +92,6 @@ class XAxis(Axis):
 
 
 class YAxis(Axis):
-
     def __init__(self, axis_type=None, **kwargs):
         if axis_type is None:
             axis_type = "value"

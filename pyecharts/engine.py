@@ -1,19 +1,19 @@
 # coding=utf-8
 from __future__ import unicode_literals
 
-from jinja2 import Environment, FileSystemLoader, environmentfunction, Markup
-from lml.plugin import PluginManager, PluginInfo
+from jinja2 import Environment, FileSystemLoader, Markup, environmentfunction
+from lml.plugin import PluginInfo, PluginManager
+from pyecharts_javascripthon.api import FUNCTION_TRANSLATOR, TRANSLATOR
 
 import pyecharts.conf as conf
 import pyecharts.constants as constants
 import pyecharts.utils as utils
-from pyecharts_javascripthon.api import TRANSLATOR
-from pyecharts_javascripthon.api import FUNCTION_TRANSLATOR
-
 
 LINK_SCRIPT_FORMATTER = '<script type="text/javascript" src="{}"></script>'
 EMBED_SCRIPT_FORMATTER = '<script type="text/javascript">\n{}\n</script>'
-CHART_DIV_FORMATTER = '<div id="{chart_id}" style="width:{width};height:{height};"></div>'  # flake8: noqa
+CHART_DIV_FORMATTER = (
+    '<div id="{chart_id}" style="width:{width};height:{height};"></div>'
+)  # flake8: noqa
 CHART_CONFIG_FORMATTER = """
 var myChart_{chart_id} = echarts.init(document.getElementById('{chart_id}'), '{theme}', {{renderer: '{renderer}'}});
 {custom_function}
@@ -23,6 +23,7 @@ myChart_{chart_id}.setOption(option_{chart_id});
 CHART_EVENT_FORMATTER = """
 myChart_{chart_id}.on("{event_name}", {handler_name});
 """
+EXTRA_TEXT_FORMATTER = """<p style="{style}">{text}</p>"""
 
 
 @environmentfunction
@@ -63,19 +64,27 @@ def echarts_js_dependencies_embed(env, *args):
 @environmentfunction
 def echarts_container(env, chart):
     """
-    Render a div html element for a chart.
+    Render <p></p><div></div> html elements for a chart.
 
     :param env:
     :param chart: A pyecharts.base.Base object
     """
-
-    return Markup(
-        CHART_DIV_FORMATTER.format(
-            chart_id=chart.chart_id,
-            width=utils.to_css_length(chart.width),
-            height=utils.to_css_length(chart.height),
+    _container_and_text = ""
+    _text_label = chart.extra_html_text_label
+    if _text_label:
+        if len(_text_label) == 1 and isinstance(_text_label, list):
+            _text_label.append("")
+        _text, _style = _text_label
+        _container_and_text += EXTRA_TEXT_FORMATTER.format(
+            text=_text, style=_style
         )
+
+    _container_and_text += CHART_DIV_FORMATTER.format(
+        chart_id=chart.chart_id,
+        width=utils.to_css_length(chart.width),
+        height=utils.to_css_length(chart.height),
     )
+    return Markup(_container_and_text)
 
 
 def generate_js_content(*charts):
@@ -211,14 +220,16 @@ class EchartsEnvironment(BaseEnvironment):
         html = tpl.render(**kwargs)
         utils.write_utf8_html_file(path, html)
 
-    def render_chart_to_notebook(self, **context):
+    def render_chart_to_notebook(
+        self, template_name="notebook.html", **context
+    ):
         """
         Return html string for rendering a chart/page to a notebook cell.
 
         :param context: A dictionary containing data.
         :return: A unicode string that will be displayed in notebook cell.
         """
-        tpl = self.get_template("notebook.html")
+        tpl = self.get_template(template_name)
         return tpl.render(**context)
 
 

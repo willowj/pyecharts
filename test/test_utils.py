@@ -1,15 +1,17 @@
 # coding=utf-8
 from __future__ import unicode_literals
 
-import os
 import codecs
+import os
 
 from nose.tools import eq_
-
 from pyecharts.utils import (
-    write_utf8_html_file, get_resource_dir, merge_js_dependencies
+    NULL,
+    get_resource_dir,
+    merge_js_dependencies,
+    remove_key_with_none_value,
+    write_utf8_html_file,
 )
-from pyecharts.utils.lazy import LazyObject
 
 
 def test_get_resource_dir():
@@ -74,18 +76,38 @@ def test_merge_js_dependencies_with_mixed_chart_and_string():
 
 
 class MockPoint(object):
-
     def __init__(self, x, y):
         self.x = x
         self.y = y
 
 
-def create_point():
-    return MockPoint(1, 2)
+def test_remove_key_with_none_value():
+    fixture = {
+        "a": 1,
+        "b": None,
+        "nested": {"ac": 1, "bc": None, "nested": {"a": 1, "b": None}},
+        "array": [
+            1,
+            {"nested": {"ac": 1, "bc": None, "nested": {"a": 1, "b": None}}},
+            {"normal": 1, "empty_string": ""},
+        ],
+        "not_set": NULL,
+    }
+    actual_result = remove_key_with_none_value(fixture)
+    expected = {
+        "a": 1,
+        "array": [1, {"nested": {"ac": 1, "nested": {"a": 1}}}, {"normal": 1}],
+        "nested": {"ac": 1, "nested": {"a": 1}},
+        "not_set": None,
+    }
+    eq_(actual_result, expected)
 
 
-def test_lazy_object():
-    p = LazyObject(create_point)
-    assert isinstance(p, LazyObject)
-    p.x = 3
-    assert isinstance(p, MockPoint)
+def test_not_set():
+    from pyecharts import Kline
+
+    kline = Kline("K 线图-默认示例")
+    kline.add("日K", [], [])
+    kline._option["series"][0]["itemStyle"] = {"normal": {"borderColor": NULL}}
+    content = kline._repr_html_()
+    assert '"borderColor": null' in content

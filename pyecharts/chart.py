@@ -2,8 +2,9 @@
 
 import random
 
-from pyecharts.base import Base
 import pyecharts.constants as constants
+from pyecharts.base import Base
+from pyecharts.echarts.option import get_base_options
 
 
 class Chart(Base):
@@ -26,6 +27,8 @@ class Chart(Base):
         background_color=None,
         page_title=constants.PAGE_TITLE,
         renderer=constants.CANVAS_RENDERER,
+        extra_html_text_label=None,
+        is_animation=True,
     ):
         """
 
@@ -58,12 +61,19 @@ class Chart(Base):
         :param renderer:
             指定使用渲染方式，有 'svg' 和 'canvas' 可选，默认为 'canvas'。
             3D 图仅能使用 'canvas'。
+        :param extra_html_text_label:
+            额外的 HTML 文本标签，(<p> 标签)。类型为 list，list[0] 为文本内容，
+            list[1] 为字体风格样式（选填）。如 ["this is a p label", "color:red"]
+        :param is_animation:
+            是否开启动画，默认为 True。V0.5.9+
         """
         super(Chart, self).__init__(
             width=width,
             height=height,
             renderer=renderer,
             page_title=page_title,
+            extra_html_text_label=extra_html_text_label,
+            is_animation=is_animation,
         )
         self._colorlst = [
             "#c23531",
@@ -100,10 +110,12 @@ class Chart(Base):
                     "left": title_pos,
                     "top": title_top,
                     "textStyle": {
-                        "color": title_color, "fontSize": title_text_size
+                        "color": title_color,
+                        "fontSize": title_text_size,
                     },
                     "subtextStyle": {
-                        "color": subtitle_color, "fontSize": subtitle_text_size
+                        "color": subtitle_color,
+                        "fontSize": subtitle_text_size,
                     },
                 }
             ],
@@ -113,9 +125,9 @@ class Chart(Base):
                 "left": "95%",
                 "top": "center",
                 "feature": {
-                    "saveAsImage": {"show": True, "title": "下载图片"},
-                    "restore": {"show": True},
-                    "dataView": {"show": True},
+                    "saveAsImage": {"show": True, "title": "save as image"},
+                    "restore": {"show": True, "title": "restore"},
+                    "dataView": {"show": True, "title": "data view"},
                 },
             },
             series_id=random.randint(1, 9000000),
@@ -123,12 +135,14 @@ class Chart(Base):
             series=[],
             legend=[{"data": []}],
             backgroundColor=background_color,
+            animation=self.is_animation,
         )
 
     def add(
         self,
         angle_data=None,
         angle_range=None,
+        angleaxis_label_interval=None,
         area_color=None,
         area_opacity=None,
         axis_range=None,
@@ -138,15 +152,24 @@ class Chart(Base):
         center=None,
         calendar_date_range=None,
         calendar_cell_size=None,
+        coordinate_region=None,
         datazoom_type=None,
         datazoom_range=None,
         datazoom_orient=None,
         datazoom_xaxis_index=None,
         datazoom_yaxis_index=None,
+        datazoom_extra_type=None,
+        datazoom_extra_range=None,
+        datazoom_extra_orient=None,
+        datazoom_extra_xaxis_index=None,
+        datazoom_extra_yaxis_index=None,
         effect_brushtype=None,
         effect_period=None,
         effect_scale=None,
         extra_data=None,
+        extra_name=None,
+        funnel_gap=None,
+        funnel_sort=None,
         geo_emphasis_color=None,
         geo_normal_color=None,
         geo_cities_coords=None,
@@ -182,6 +205,7 @@ class Chart(Base):
         is_clockwise=None,
         is_convert=None,
         is_datazoom_show=None,
+        is_datazoom_extra_show=None,
         is_fill=None,
         is_focusnode=None,
         is_geo_effect_show=None,
@@ -236,10 +260,12 @@ class Chart(Base):
         liquid_color=None,
         maptype=None,
         mark_line=None,
+        mark_line_raw=None,
         mark_line_symbolsize=None,
         mark_line_valuedim=None,
         mark_line_coords=None,
         mark_point=None,
+        mark_point_raw=None,
         mark_point_symbol=None,
         mark_point_symbolsize=None,
         mark_point_textcolor=None,
@@ -257,8 +283,8 @@ class Chart(Base):
         sankey_node_width=None,
         sankey_node_gap=None,
         type=None,
-        tooltip_tragger=None,
-        tooltip_tragger_on=None,
+        tooltip_trigger=None,
+        tooltip_trigger_on=None,
         tooltip_axispointer_type=None,
         tooltip_formatter=None,
         tooltip_text_color=None,
@@ -266,6 +292,25 @@ class Chart(Base):
         tooltip_background_color=None,
         tooltip_border_color=None,
         tooltip_border_width=None,
+        tree_layout=None,
+        tree_symbol=None,
+        tree_symbol_size=None,
+        tree_orient=None,
+        tree_top=None,
+        tree_left=None,
+        tree_bottom=None,
+        tree_right=None,
+        tree_collapse_interval=None,
+        tree_label_position=None,
+        tree_label_vertical_align=None,
+        tree_label_align=None,
+        tree_label_text_size=None,
+        tree_label_rotate=None,
+        tree_leaves_position=None,
+        tree_leaves_vertical_align=None,
+        tree_leaves_align=None,
+        tree_leaves_text_size=None,
+        tree_leaves_rotate=None,
         treemap_left_depth=None,
         treemap_drilldown_icon=None,
         treemap_visible_min=None,
@@ -297,6 +342,8 @@ class Chart(Base):
         xaxis_type=None,
         xaxis_label_textsize=None,
         xaxis_label_textcolor=None,
+        xaxis_line_color=None,
+        xaxis_line_width=None,
         xaxis3d_name=None,
         xaxis3d_name_size=None,
         xaxis3d_name_gap=None,
@@ -319,6 +366,8 @@ class Chart(Base):
         yaxis_name=None,
         yaxis_label_textsize=None,
         yaxis_label_textcolor=None,
+        yaxis_line_color=None,
+        yaxis_line_width=None,
         yaxis3d_name=None,
         yaxis3d_name_size=None,
         yaxis3d_name_gap=None,
@@ -337,7 +386,7 @@ class Chart(Base):
         """
         `add()` 方法只是用于提供自动参数补全
         """
-        pass
+        return self
 
     def _config_components(
         self,
@@ -361,7 +410,7 @@ class Chart(Base):
         """
         if self.theme == constants.LIGHT_THEME:
             kwargs.update(colorlst=self._colorlst)
-        chart = self._get_all_options(**kwargs)
+        chart = get_base_options(**kwargs)
         self._option.update(color=chart["color"])
 
         # legend
@@ -371,8 +420,12 @@ class Chart(Base):
         self._option.update(tooltip=chart["tooltip"])
 
         # dataZoom，勿改动
-        if kwargs.get("is_datazoom_show", None) is True:
+        if kwargs.get("is_datazoom_show", False) is True:
             self._option.update(dataZoom=chart["datazoom"])
+        if kwargs.get("is_datazoom_extra_show", False) is True:
+            _dz = self._option.get("dataZoom", [])
+            _dz.extend(chart["datazoom_extra"])
+            self._option.update(dataZoom=_dz)
 
         # visualMap
         if is_visualmap:
@@ -392,9 +445,89 @@ class Chart(Base):
                     },
                 },
                 dataZoom={
-                    "show": True, "title": {"zoom": "区域缩放", "back": "缩放还原"}
+                    "show": True,
+                    "title": {"zoom": "区域缩放", "back": "缩放还原"},
                 },
             )
 
         if not is_toolbox_show:
             self._option.pop("toolbox", None)
+
+
+class Chart3D(Chart):
+    """
+    `Chart3D`类是所有 3D 类图表的基类，继承自 `Chart` 类
+    """
+
+    def __init__(self, title="", subtitle="", **kwargs):
+        kwargs["renderer"] = constants.CANVAS_RENDERER
+        super(Chart3D, self).__init__(title, subtitle, **kwargs)
+        self._js_dependencies.add("echartsgl")
+        self._3d_chart_type = None  # 3d chart type, don't use it directly
+
+    def add(self, *args, **kwargs):
+        self.__chart3d_add(*args, **kwargs)
+
+    def __chart3d_add(
+        self,
+        name,
+        data,
+        grid3d_opacity=1,
+        grid3d_shading=None,
+        xaxis3d_type="value",
+        yaxis3d_type="value",
+        zaxis3d_type="value",
+        **kwargs
+    ):
+        """
+
+        :param name:
+            系列名称，用于 tooltip 的显示，legend 的图例筛选。
+        :param data:
+            数据项，数据中，每一行是一个『数据项』，每一列属于一个『维度』。
+        :param grid3d_opacity:
+            3D 笛卡尔坐标系组的透明度（线的透明度），默认为 1，完全不透明。
+        :param grid3d_shading:
+            三维柱状图中三维图形的着色效果。
+            color：
+                只显示颜色，不受光照等其它因素的影响。
+            lambert：
+                通过经典的 lambert 着色表现光照带来的明暗。
+            realistic：
+                真实感渲染，配合 light.ambientCubemap 和 postEffect 使用可以让
+                展示的画面效果和质感有质的提升。ECharts GL 中使用了基于物理的渲
+                染（PBR）来表现真实感材质。
+        :param xaxis3d_type:
+            空间直角 3D 图表 x 轴类型
+        :param yaxis3d_type:
+            空间直角 3D 图表 y 轴类型
+        :param zaxis3d_type:
+            空间直角 3D 图表 z 轴类型
+        :param kwargs:
+        """
+        chart = self._get_all_options(
+            xaxis3d_type=xaxis3d_type,
+            yaxis3d_type=yaxis3d_type,
+            zaxis3d_type=zaxis3d_type,
+            **kwargs
+        )
+
+        self._option.get("legend")[0].get("data").append(name)
+        self._option.update(
+            xAxis3D=chart["xaxis3D"],
+            yAxis3D=chart["yaxis3D"],
+            zAxis3D=chart["zaxis3D"],
+            grid3D=chart["grid3D"],
+        )
+
+        self._option.get("series").append(
+            {
+                "type": self._3d_chart_type,
+                "name": name,
+                "data": data,
+                "label": chart["label"],
+                "shading": grid3d_shading,
+                "itemStyle": {"opacity": grid3d_opacity},
+            }
+        )
+        self._config_components(**kwargs)

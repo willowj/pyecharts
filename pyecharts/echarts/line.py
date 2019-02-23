@@ -2,7 +2,6 @@ from pyecharts.echarts.json_serializable import JsonSerializable
 
 
 class Line(JsonSerializable):
-
     def __init__(
         self,
         width=None,
@@ -14,7 +13,7 @@ class Line(JsonSerializable):
     ):
         if color is None and chart_type == "graph":
             color = "#aaa"
-        self.config = {
+        self._config = {
             "width": width,
             "opacity": opacity,
             "curveness": curve,

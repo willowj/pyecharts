@@ -1,9 +1,105 @@
 # 版本日志
 
-* ### version 0.5.3（dev）
-    *  TODO
+* ### version 0.6.0（dev）
+    * TODO
 
-* ### version 0.5.2 - 2018.05.04（Current）
+* ### version 0.5.11 - 2018.9.9（current）
+    
+    #### Added
+    * [issue#731](https://github.com/pyecharts/pyecharts/issues/731) 新增 `mark_point_raw`, `mark_line_raw` 配置项用于个性化展示标记。
+    
+    #### Fixed
+    * [issue#738](https://github.com/pyecharts/pyecharts/issues/738) 支持设置 Grid, Overlay 和 Timeline 某选项为空 (null)
+
+    #### Removed
+    * 移除 pillow 作为默认依赖，需要用到 Scatter.draw 方法的开发者请先自行安装 pillow。
+    
+
+* ### version 0.5.10 - 2018.9.4
+
+    #### Added
+    * [issue#699](https://github.com/pyecharts/pyecharts/issues/699) 为漏斗图新增 `funnel_sort` 和 `funnel_gap` 分别用于控制漏斗图的排序方式和数据图形间隔。
+    * [issue#703](https://github.com/pyecharts/pyecharts/issues/703) 支持设置 Echarts 某选项为空 (null)
+    * [issue#720](https://github.com/pyecharts/pyecharts/issues/720) 新增 3D 曲面图图形种类。
+
+    #### Fixed
+    * [issue#715](https://github.com/pyecharts/pyecharts/issues/715) 修复 online() 方法不生效的 bug
+
+    #### Updated
+    * [issue#702](https://github.com/pyecharts/pyecharts/issues/702) Toobox 选项标签文本更改为更通用的英语。
+
+    #### Removed
+    * 停止对 Python3.4 版本的支持和维护。
+
+
+* ### version 0.5.9 - 2018.8.26
+
+    #### Added
+    * [pr#685](https://github.com/pyecharts/pyecharts/pull/685) 图表方法(`use_theme`/`config`/`add`)支持链式调用
+    * [pr#690](https://github.com/pyecharts/pyecharts/pull/690) Radar 新增 `set_radar_component` 方法，废弃 `config` 方法；Parallel 图新增 `set_schema` 方法，废弃 `confg` 方法
+    * [issue#687](https://github.com/pyecharts/pyecharts/issues/687) 新增 `add_coordinate_json` 方法用于支持导入 Geo/Geolines 坐标数据
+    * [issue#691](https://github.com/pyecharts/pyecharts/issues/691) 为每种图形新增 `is_animation` 初始化参数，用于控制是否显示动画。
+    * 新增 [geo-region-coords](https://github.com/pyecharts/geo-region-coords) 辅助项目，提供中国地区坐标查询。
+
+    #### Updated
+    * [issue#678](https://github.com/pyecharts/pyecharts/issues/678) 将 `extra_html_text_label` 默认位置移动到图形顶部。
+    * [pr#677](https://github.com/pyecharts/pyecharts/pull/677) 重构 Polar，更正错误参数。
+
+
+* ### version 0.5.8 - 2018.8.13
+
+    #### Added
+    * [issue#655](https://github.com/pyecharts/pyecharts/issues/655) 新增多个自定义主题：westeros, wonderland, chalk, halloween, essos，walden, romantic and purple-passion
+    * [issue#669](https://github.com/pyecharts/pyecharts/issues/669) 新增 Tree 图形种类。
+    * Polar 图新增 `angleaxis_label_interval` 参数，用于控制坐标轴刻度标签的显示间隔，在类目轴中有效。
+
+
+* ### version 0.5.7 - 2018.8.11
+
+    #### Added
+    * [issue#651](https://github.com/pyecharts/pyecharts/issues/651) Scatter 图新增 `extra_name` 参数，额外的数据项的名称，可以为每个数据点指定一个名称。
+    * [issue#657](https://github.com/pyecharts/pyecharts/issues/657) 基本图形新增 `extra_html_text_label` 参数用于显示额外的文本标签，仅限于在单图形或者 Page 时使用。
+    * [issue#660](https://github.com/pyecharts/pyecharts/issues/660) 为 X/Y 坐标轴新增 `xaxis_line_color`, `xaxis_line_width`, `yaxis_line_color`, `yaxis_line_width` 四个参数，用于控制其坐标轴线线的颜色以及宽度。
+    * [pr#663](https://github.com/pyecharts/pyecharts/pull/663) 新增 `coordinate_region` 参数用于指定国家/地区检索坐标且提供了 echarts-cities-pypkg 为可选的地理数据扩展。引入来自 [geonames.org](http://geonames.org/) 的 138,398 个城市坐标。
+
+
+* ### version 0.5.6 - 2018.7.28
+
+    #### Fixed
+    * [issue#452](https://github.com/pyecharts/pyecharts/issues/452) 修复 K 线图不能显示 tooltip【open, close, lowest, highest】的 bug
+    * [issue#639](https://github.com/pyecharts/pyecharts/issues/639) 修复 Line 图当 X 轴的类型设置为 'value' 的时候，X、Y 轴均显示 Y 轴数据的 bug
+    * [issue#636](https://github.com/pyecharts/pyecharts/issues/636) 修复 Geo/Geoline 图坐标地点名替换 Legend 的 bug
+
+    #### Updated
+    * 修正参数拼写，将 `tooltip_tragger`, `tooltip_tragger_on` 修正为 `tooltip_trigger`, `tooltip_trigger_on`
+    * 更新 echarts 及附属 js 文件版本 echarts 4.0.4 -> 4.1.0，echarts-gl 1.1.0 -> 1.1.1，echarts-liquidfill 2.0.0 -> 2.0.1
+    * [issue#634](https://github.com/pyecharts/pyecharts/issues/634) 新增 `is_datazoom_extra_show`, `datazoom_extra_type`, `datazoom_extra_range`, `datazoom_extra_orient`, `datazoom_extra_xaxis_index`, `datazoom_extra_yaxis_index` 参数用于设置额外的 dataZoom 控制条，可将效果同时作用于 X、Y 轴
+
+
+* ### version 0.5.5 - 2018.05.17
+
+    #### Added
+    * [issue#565](https://github.com/pyecharts/pyecharts/issues/565) Geolines 图数据项可以新增数值维度
+    * [issue#573](https://github.com/pyecharts/pyecharts/issues/573) 新增对 jupyter notebook 家族的新成员 [nteract](https://nteract.io/) 的支持
+
+    #### Fixed
+    * [issue#572](https://github.com/pyecharts/pyecharts/issues/572) 修复 HeatMap 图纵坐标显示索引值，而非 data 值的 bug
+
+* ### version 0.5.4 - 2018.05.15
+
+    #### Updated
+    * 重构 `Page` 类，新增图表命名名称引用。
+
+    #### Fixed
+    * [issue#555](https://github.com/pyecharts/pyecharts/issues/555) 修复 v0.5.3 Polar 图不能显示的 bug
+    * [issue#541](https://github.com/pyecharts/pyecharts/issues/541) 修复 v0.5.3 Django + pyecharts 不能正常导入的 bug
+
+* ### version 0.5.3 - 2018.05.10
+
+    #### Fixed
+    * [issue#544](https://github.com/pyecharts/pyecharts/issues/544) 修复 v0.5.2 主题颜色默认颜色配置与前版本有差别太大的 bug
+
+* ### version 0.5.2 - 2018.05.04
 
     #### Added
     * [issue#512](https://github.com/pyecharts/pyecharts/issues/512) 新增自定义主题功能
@@ -54,7 +150,7 @@
     * 修正 width / height 在 Jupyter Notebook 渲染错误的 Bug
     * [issue#432](https://github.com/pyecharts/pyecharts/issues/432) 修复水球图和词云图不能指定 Toolbox 等选项的 Bug
 
-* ### version 0.3.3 - 2018.03.01（Current）
+* ### version 0.3.3 - 2018.03.01
 
     #### Added
     * 防止将来的依赖包影响 v0.3.2 的功能: lml==0.0.2, jupyter-echarts-pypkg==0.0.11

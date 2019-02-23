@@ -3,7 +3,7 @@
 </p>
 <h1 align="center">pyecharts</h1>
 <p align="center">
-    <em>pyecharts is a library to generate charts using Echarts. It simply provides the interface of 28+ kinds of charts between Echarts and Python.</em>
+    <em>pyecharts is a library to generate charts using Echarts. It simply provides the interface of 30+ kinds of charts between Echarts and Python.</em>
 </p>
 <p align="center">
     <a href="https://travis-ci.org/pyecharts/pyecharts">
@@ -18,8 +18,19 @@
     <a href="https://badge.fury.io/py/pyecharts">
         <img src="https://badge.fury.io/py/pyecharts.svg" alt="Package version">
     </a>
+    <a href="https://pypi.org/project/pyecharts/">
+        <img src="https://img.shields.io/pypi/pyversions/pyecharts.svg?colorB=brightgreen" alt="PyPI - Python Version">
+    </a>
+</p>
+<p align="center">
+    <a href="https://pypi.org/project/pyecharts">
+        <img src="https://img.shields.io/pypi/format/pyecharts.svg" alt="PyPI - Format">
+    </a>
+     <a href="https://github.com/pyecharts/pyecharts/pulls">
+        <img src="https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat" alt="Contributions welcome">
+    </a>
     <a href="https://opensource.org/licenses/MIT">
-        <img src="https://img.shields.io/badge/License-MIT-green.svg" alt="LICENSE">
+        <img src="https://img.shields.io/badge/License-MIT-brightgreen.svg" alt="License">
     </a>
 </p>
 
@@ -55,6 +66,16 @@ $ python setup.py install
 ```
 
 Please note: since version 0.3.2, **NO LONGER** pyecharts comes with any map files. Please read next section for more informations.
+
+### Geo Data extensions (0.5.7+)
+
+From geonames.org, [138,398](https://github.com/echarts-maps/echarts-cities-js) cities of the world with a population of at least 1000 inhabitants: [echarts-cities-pypkg](https://github.com/pyecharts/echarts-cities-pypkg)
+
+Install data extensions:
+
+```shell
+$ pip install echarts-cities-pypkg
+```
 
 ### Map extensions
 
@@ -116,7 +137,9 @@ So please see installation instruction and other usage at that repository.
 
 pyecharts exposes chart API and template API so that it can work on other python frameworks.
 
-### Integration with Jupyter Notebook
+### Integration with Jupyter Notebook/nteract
+
+#### Notebook
 
 In the Notebook cell, you can simply pass on chart instance itself to Jupyter, which will diplay the chart. Please note **render_notebook** function has been removed.
 
@@ -125,6 +148,20 @@ All chart classes in pyecharts implement the `_repr_html_` interface about [IPyt
 In the case of online jshost mode, you can also download as some file formats (ipynb/py/html/pdf) and run without jupyter notebook enviromnment.
 
 ![](https://user-images.githubusercontent.com/19553554/35104252-3e36cee2-fca3-11e7-8e43-09bbe8dbbd1e.png)
+
+#### nteract
+
+Since pyecharts 0.5.5+, [nteract](https://nteract.io) is supported. Once the following two lines should added to your notebook, you could use pyecharts in nteract in the same way as in jupyter notebook.
+
+```python
+from pyecharts import enable_nteract
+
+enable_nteract()
+```
+
+![](https://user-images.githubusercontent.com/19553554/40266807-2c3ddcc2-5b84-11e8-8240-d3398243d4a6.png)
+
+However, when rendering output as image, the instructions are the same as jupyter notebook. Only default html(including js) output should call `enable_nteract()`.
 
 ### Integrate With Web Framework
 
@@ -181,7 +218,7 @@ The project is developed with [Travis CI](https://travis-ci.org/) and [AppVeyor]
 
 ## Author
 
-[![chenjiandongx](https://user-images.githubusercontent.com/19553554/35315207-02ea37ea-0106-11e8-9f9f-8fb26922c492.png)](https://github.com/chenjiandongx)  [![chfw](https://user-images.githubusercontent.com/19553554/35315208-032a38a4-0106-11e8-85f1-7f601330027f.png)](https://github.com/chfw)  [![kinegratii](https://user-images.githubusercontent.com/19553554/35315209-0368f8fa-0106-11e8-99f6-c71d7624a2c9.png)](https://github.com/kinegratii)
+[![](https://sourcerer.io/fame/chenjiandongx/pyecharts/pyecharts/images/0)](https://sourcerer.io/fame/chenjiandongx/pyecharts/pyecharts/links/0)[![](https://sourcerer.io/fame/chenjiandongx/pyecharts/pyecharts/images/1)](https://sourcerer.io/fame/chenjiandongx/pyecharts/pyecharts/links/1)[![](https://sourcerer.io/fame/chenjiandongx/pyecharts/pyecharts/images/2)](https://sourcerer.io/fame/chenjiandongx/pyecharts/pyecharts/links/2)[![](https://sourcerer.io/fame/chenjiandongx/pyecharts/pyecharts/images/3)](https://sourcerer.io/fame/chenjiandongx/pyecharts/pyecharts/links/3)[![](https://sourcerer.io/fame/chenjiandongx/pyecharts/pyecharts/images/4)](https://sourcerer.io/fame/chenjiandongx/pyecharts/pyecharts/links/4)[![](https://sourcerer.io/fame/chenjiandongx/pyecharts/pyecharts/images/5)](https://sourcerer.io/fame/chenjiandongx/pyecharts/pyecharts/links/5)[![](https://sourcerer.io/fame/chenjiandongx/pyecharts/pyecharts/images/6)](https://sourcerer.io/fame/chenjiandongx/pyecharts/pyecharts/links/6)[![](https://sourcerer.io/fame/chenjiandongx/pyecharts/pyecharts/images/7)](https://sourcerer.io/fame/chenjiandongx/pyecharts/pyecharts/links/7)
 
 ## License
 pyecharts is released under the MIT License. See LICENSE for more information.

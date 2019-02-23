@@ -15,6 +15,7 @@ class Polar(Chart):
 
     def add(self, *args, **kwargs):
         self.__add(*args, **kwargs)
+        return self
 
     def __add(
         self,
@@ -30,6 +31,7 @@ class Polar(Chart):
         is_clockwise=True,
         is_stack=False,
         axis_range=None,
+        angleaxis_label_interval=0,
         is_angleaxis_show=True,
         is_radiusaxis_show=True,
         radiusaxis_z_index=50,
@@ -66,6 +68,11 @@ class Polar(Chart):
             数据堆叠，同个类目轴上系列配置相同的 stack 值可以堆叠放置。
         :param axis_range:
             坐标轴刻度范围。默认值为 [None, None]。
+        :param angleaxis_label_interval:
+            坐标轴刻度标签的显示间隔，在类目轴中有效。
+            默认会采用标签不重叠的策略间隔显示标签。可以设置成 0 强制显示所有标签。
+            如果设置为 1，表示『隔一个标签显示一个标签』，如果值为 2，表示隔两个
+            标签显示一个标签，以此类推。
         :param is_angleaxis_show:
             是否显示极坐标系的角度轴，默认为 True。
         :param is_radiusaxis_show:
@@ -91,6 +98,38 @@ class Polar(Chart):
         _area_style = chart["area_style"]
         if kwargs.get("area_color", None) is None:
             _area_style = None
+
+        _bar_type_series = {
+            "type": "bar",
+            "coordinateSystem": "polar",
+            "stack": is_stack,
+            "name": name,
+            "data": data,
+        }
+
+        _radius_axis_opt = {
+            "show": is_radiusaxis_show,
+            "type": polar_type,
+            "data": radius_data,
+            "min": _amin,
+            "max": _amax,
+            "axisLine": chart["axis_line"],
+            "axisLabel": {"rotate": rotate_step},
+            "z": radiusaxis_z_index,
+        }
+
+        _angle_axis_opt = {
+            "show": is_angleaxis_show,
+            "type": polar_type,
+            "data": angle_data,
+            "clockwise": is_clockwise,
+            "startAngle": start_angle,
+            "boundaryGap": boundary_gap,
+            "splitLine": chart["split_line"],
+            "axisLine": chart["axis_line"],
+            "axisLabel": {"interval": angleaxis_label_interval},
+            "z": angleaxis_z_index,
+        }
 
         if type in ("scatter", "line"):
             self._option.get("series").append(
@@ -122,45 +161,15 @@ class Polar(Chart):
             )
 
         elif type == "barRadius":
-            self._option.get("series").append(
-                {
-                    "type": "bar",
-                    "stack": is_stack,
-                    "name": name,
-                    "coordinateSystem": "polar",
-                    "data": data,
-                }
-            )
+            self._option.get("series").append(_bar_type_series)
             self._option.update(angleAxis={})
-            self._option.update(
-                radiusAxis={
-                    "type": polar_type,
-                    "data": radius_data,
-                    "z": radiusaxis_z_index,
-                }
-            )
+            self._option.update(radiusAxis=_radius_axis_opt)
 
         elif type == "barAngle":
-            self._option.get("series").append(
-                {
-                    "type": "bar",
-                    "stack": is_stack,
-                    "name": name,
-                    "coordinateSystem": "polar",
-                    "data": data,
-                }
-            )
+            self._option.get("series").append(_bar_type_series)
             self._option.update(radiusAxis={"show": is_radiusaxis_show})
-            self._option.update(
-                angleAxis={
-                    "show": is_angleaxis_show,
-                    "type": polar_type,
-                    "data": radius_data,
-                    "z": angleaxis_z_index,
-                    "startAngle": start_angle,
-                    "splitLine": chart["split_line"],
-                }
-            )
+            self._option.update(angleAxis=_angle_axis_opt)
+
         elif type == "custom":
             assert render_item is not None
             self._option.get("series").append(
@@ -174,29 +183,7 @@ class Polar(Chart):
             )
 
         if type not in ("barAngle", "barRadius"):
-            self._option.update(
-                angleAxis={
-                    "show": is_angleaxis_show,
-                    "type": polar_type,
-                    "data": angle_data,
-                    "clockwise": is_clockwise,
-                    "startAngle": start_angle,
-                    "boundaryGap": boundary_gap,
-                    "splitLine": chart["split_line"],
-                    "axisLine": chart["axis_line"],
-                }
-            )
-            self._option.update(
-                radiusAxis={
-                    "show": is_radiusaxis_show,
-                    "type": polar_type,
-                    "data": radius_data,
-                    "min": _amin,
-                    "max": _amax,
-                    "axisLine": chart["axis_line"],
-                    "axisLabel": {"rotate": rotate_step},
-                    "z": radiusaxis_z_index,
-                }
-            )
+            self._option.update(angleAxis=_angle_axis_opt)
+            self._option.update(radiusAxis=_radius_axis_opt)
         self._option.update(polar={})
         self._config_components(**kwargs)

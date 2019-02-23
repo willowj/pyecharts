@@ -3,10 +3,20 @@
 from __future__ import unicode_literals
 
 import random
+from test.constants import CLOTHES, WEEK, X_TIME, Y_WEEK
 
-from pyecharts import Bar, Line, Scatter, EffectScatter, Pie, Kline, HeatMap
-from pyecharts import Grid
-from test.constants import X_TIME, Y_WEEK, CLOTHES, WEEK
+from pyecharts import (
+    NULL,
+    Bar,
+    EffectScatter,
+    Grid,
+    HeatMap,
+    Kline,
+    Line,
+    Pie,
+    Scatter,
+)
+from pyecharts.utils import Passport
 
 
 def test_grid_top_bottom():
@@ -352,3 +362,15 @@ def test_grid_add_overlap():
 
     grid.add(overlap, grid_right="20%")
     grid.render()
+
+
+def test_not_set_in_grid():
+    line = Line("Line")
+    attr = ["A", "B", "C"]
+    line.add("Line1", attr, [1, 2, 3])
+    line._option["series"][0]["symbol"] = NULL
+
+    grid = Grid()
+    grid.add(line, grid_top="10%")
+
+    assert isinstance(grid._option["series"][0]["symbol"], Passport)
